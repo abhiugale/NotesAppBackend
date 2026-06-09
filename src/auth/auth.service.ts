@@ -4,6 +4,7 @@ import { UsersService } from '../users/users.service';
 import { hashPassword, verifyPassword, signJwt } from './crypto.utils';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UserDocument } from '../users/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,7 @@ export class AuthService {
     }
 
     const { salt, hash } = hashPassword(password);
-    const user = await this.usersService.create(username, email, hash, salt);
+    const user = await this.usersService.create(username, email, hash, salt) as UserDocument;
 
     const secret = this.configService.get<string>('JWT_SECRET') || 'notes-app-default-jwt-secret-key-998877';
     const token = signJwt(
@@ -48,7 +49,7 @@ export class AuthService {
   async login(dto: LoginDto) {
     const { identifier, password } = dto; // identifier can be username or email
 
-    let user = await this.usersService.findByEmail(identifier);
+    let user: UserDocument | null = await this.usersService.findByEmail(identifier);
     if (!user) {
       user = await this.usersService.findByUsername(identifier);
     }
