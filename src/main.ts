@@ -24,8 +24,11 @@ async function bootstrap() {
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   }));
 
-  // NoSQL query sanitization
-  app.use(mongoSanitize());
+  // NoSQL query sanitization (body only — req.query is read-only in newer Express)
+  app.use((req: any, _res: any, next: any) => {
+    if (req.body) req.body = mongoSanitize.sanitize(req.body);
+    next();
+  });
 
   // Global validation pipe
   app.useGlobalPipes(

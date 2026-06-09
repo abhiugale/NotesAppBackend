@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Note } from './schemas/note.schema';
+import { Note, NoteDocument } from './schemas/note.schema';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { GetNotesQueryDto } from './dto/get-notes-query.dto';
 import { paginate, PaginationResult } from '../common/utils/pagination.util';
@@ -11,7 +11,7 @@ import { CustomLogger } from '../common/logger';
 export class NotesService {
   private readonly logger = new CustomLogger();
 
-  constructor(@InjectModel(Note.name) private noteModel: Model<Note>) {}
+  constructor(@InjectModel(Note.name) private noteModel: Model<NoteDocument>) {}
 
   async create(userId: string, dto: CreateNoteDto): Promise<Note> {
     this.logger.log(`Creating note for user: ${userId}`);
