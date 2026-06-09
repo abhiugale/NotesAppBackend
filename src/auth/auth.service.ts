@@ -49,7 +49,7 @@ export class AuthService {
   async login(dto: LoginDto) {
     const { identifier, password } = dto; // identifier can be username or email
 
-    let user: UserDocument | null = await this.usersService.findByEmail(identifier);
+    let user = await this.usersService.findByEmail(identifier);
     if (!user) {
       user = await this.usersService.findByUsername(identifier);
     }
