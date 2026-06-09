@@ -8,23 +8,24 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // CORS must be enabled before any other middleware
+  const app = await NestFactory.create(AppModule, { cors: false });
 
-  // Security headers using Helmet
+  // Enable CORS first — before helmet or any other middleware
+  app.enableCors({
+    origin: true,          // reflect request origin
+    credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  });
+
+  // Security headers (crossOriginResourcePolicy relaxed so responses aren't blocked)
   app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   }));
 
   // NoSQL query sanitization
   app.use(mongoSanitize());
-
-  // CORS configuration
-  app.enableCors({
-    origin: (origin, callback) => {
-      callback(null, true);
-    },
-    credentials: true,
-  });
 
   // Global validation pipe
   app.useGlobalPipes(
@@ -39,7 +40,7 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
 
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 3001;
   await app.listen(port);
   console.log(`Application is running on: http://localhost:${port}`);
 }
